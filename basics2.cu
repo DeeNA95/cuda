@@ -4,6 +4,8 @@
 // when dealing with a matrix we can use x and y dimensions
 // when dealing with a 3D volume we can use x,y and z dimensions (ie tensors)
 
+
+
 #include <stdio.h>
 #define N 4
 #define N_BLOCKS 2
