@@ -55,10 +55,10 @@ using cint3 = const int3;
 using cfloat3 = const float3;
 
 // // Pointer templates
-// template<typename T> using r_Ptr = T* __restrict__;  // pointer variable, data variable
-// template<typename T> using cr_Ptr = const T* __restrict__;  // pointer variable, data constant
-// template<typename T> using cvr_Ptr = T* const __restrict__;  // pointer constant, data variable
-// template<typename T> using ccr_Ptr = const T* const __restrict__;  // pointer constant, data constant
+template<typename T> using r_Ptr = T* __restrict__;  // pointer variable, data variable
+template<typename T> using cr_Ptr = const T* __restrict__;  // pointer variable, data constant
+template<typename T> using cvr_Ptr = T* const __restrict__;  // pointer constant, data variable
+template<typename T> using ccr_Ptr = const T* const __restrict__;  // pointer constant, data constant
 
 // // Thrust vector aliases
 // template<typename T> using thrustHvecPin = thrust::host_vector<T, thrust::cuda::experimental::pinned_allocator<T>>;
@@ -69,3 +69,4 @@ using cfloat3 = const float3;
 // template<typename T> T* trDptr(thrustDvec<T>& a) {
 //     return a.data().get();
 // }
+
