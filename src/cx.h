@@ -7,12 +7,13 @@
 // CUDA includes
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-// #include "helper_cuda.h"
+//#include "helper_cuda.h"
 
 // Thrust includes
 #include "thrust/host_vector.h"
 #include "thrust/device_vector.h"
-// #include "thrust/system/cuda/experimental/pinned_allocator.h"
+//#include "thrust/system/cuda/experimental/pinned_allocator.h"
+//#include "thrust.h"
 
 // C++ standard includes
 #include <algorithm>
@@ -61,9 +62,9 @@ template<typename T> using cvr_Ptr = T* const __restrict__;  // pointer constant
 template<typename T> using ccr_Ptr = const T* const __restrict__;  // pointer constant, data constant
 
 // // Thrust vector aliases
-// template<typename T> using thrustHvecPin = thrust::host_vector<T, thrust::cuda::experimental::pinned_allocator<T>>;
-// template<typename T> using thrustHvec = thrust::host_vector<T>;
-// template<typename T> using thrustDvec = thrust::device_vector<T>;
+//template<typename T> using thrustHvecPin = thrust::host_vector<T, thrust::cuda::experimental::pinned_allocator<T>>;
+template<typename T> using thrustHvec = thrust::host_vector<T>;
+template<typename T> using thrustDvec = thrust::device_vector<T>;
 
 // // Utility function to get raw pointer from thrust device vector
 // template<typename T> T* trDptr(thrustDvec<T>& a) {
