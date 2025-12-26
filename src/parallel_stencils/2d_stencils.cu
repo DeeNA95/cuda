@@ -46,7 +46,7 @@ int main( int argc, char *argv[]){
 
 	cxxtimer::Timer tim;
 	tim.start();
-	
+
 	for (int k=0; k < iter_host/2; k++){
 		stencil2d_host(a.data(), b.data(), nx, ny);
 		stencil2d_host(b.data(),a.data(), nx, ny);
@@ -54,9 +54,9 @@ int main( int argc, char *argv[]){
 	tim.stop();
 	double t1 = tim.count<cxxtimer::ms>();
 	double gflops_host = (double)(iter_host*4) * (double)size/(t1*1e6);
-	
+
 	dim3 threads = {16,16,1};
-	dim3 blocks = { (nx+threads.z-1)/threads.x, (ny+threads.y-1)/threads.y,1};
+	dim3 blocks = { (nx+threads.x-1)/threads.x, (ny+threads.y-1)/threads.y,1};
 
 	tim.reset();
 	tim.start();
