@@ -1,8 +1,8 @@
+#include <chrono>
 #include <cooperative_groups.h>
+#include <cuda_runtime.h>
 #include <iostream>
 #include <random>
-#include <chrono>
-#include <cuda_runtime.h>
 
 namespace cg = cooperative_groups; // or using
 
@@ -26,36 +26,37 @@ auto warp = cg::tiled_partition<32>(tb);
 __device__ int a[256][512][512];
 __device__ float b[256][512][512];
 
-//this kernel uses 3D cooperative groups to acces the 3d grid
-__global__ void coop3D(int nx,int ny,int nz,int id){
+// this kernel uses 3D cooperative groups to acces the 3d grid
+__global__ void coop3D(int nx, int ny, int nz, int id) {
 
-    auto grid = cg::this_grid();
-    auto block = cg::this_thread_block();
+  auto grid = cg::this_grid();
+  auto block = cg::this_thread_block();
 
-    int x = block.thread_index().x + block.group_dim().x * block.group_index().x;
-    int y = block.thread_index().y + block.group_dim().y * block.group_index().y;
-    int z = block.thread_index().z + block.group_dim().z * block.group_index().z;
+  int x = block.thread_index().x + block.group_dim().x * block.group_index().x;
+  int y = block.thread_index().y + block.group_dim().y * block.group_index().y;
+  int z = block.thread_index().z + block.group_dim().z * block.group_index().z;
 
-    if(x >=nx || y >=ny || z >=nz) return; //if not in range return
+  if (x >= nx || y >= ny || z >= nz)
+    return; // if not in range return
 
-    int array_size = nx*ny*nz;
+  int array_size = nx * ny * nz;
 
-    //threads in one block
-    int block_size = block.size();
+  // threads in one block
+  int block_size = block.size();
 
-    //blocks in grid
-    int grid_size = grid.size()/block_size;
+  // blocks in grid
+  int grid_size = grid.size() / block_size;
 
-    //threads in whole grid
-    int total_threads = grid.size();
+  // threads in whole grid
+  int total_threads = grid.size();
 
-    int thread_rank_in_block = block.thread_rank();
+  int thread_rank_in_block = block.thread_rank();
 
-    int block_rank_in_grid = grid.thread_rank()/block_size;
+  int block_rank_in_grid = grid.thread_rank() / block_size;
 
-    int thread_rank_in_grid = grid.thread_rank();
+  int thread_rank_in_grid = grid.thread_rank();
 
-    if (thread_rank_in_grid == id) {
+  if (thread_rank_in_grid == id) {
     printf("array size %3d x %3d x %3d = %d\n", nx, ny, nz, array_size);
     printf("thread block %3d x %3d x %3d = %d\n", blockDim.x, blockDim.y,
            blockDim.z, block_size);
@@ -68,7 +69,6 @@ __global__ void coop3D(int nx,int ny,int nz,int id){
            thread_rank_in_grid, thread_rank_in_block, block_rank_in_grid);
   }
 }
-
 
 int main(int argc, char *argv[]) {
   int id = (argc > 1) ? atoi(argv[1]) : 12345;

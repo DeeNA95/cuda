@@ -22,7 +22,7 @@ __global__ void devmatmul0(r_Ptr<float> C, cr_Ptr<float> B, cr_Ptr<float> A,
 
   if (i < Ay && j < Bx) {
     float sum = 0.0f;
-    #pragma unroll 32
+#pragma unroll 32
     for (int k = 0; k < Ax; k++) {
       sum += A[i * Ax + k] * B[k * Bx + j];
     }
@@ -40,7 +40,7 @@ __global__ void gputiled(float *__restrict C, float *__restrict A,
   int col = blockIdx.x * blockDim.x + threadIdx.x;
 
   float csum = 0.0f;
-//   #pragma unroll TS
+  //   #pragma unroll TS
 
   // Iterate over tiles
   for (int t = 0; t < (Ax + TS - 1) / TS; ++t) {
@@ -64,8 +64,8 @@ __global__ void gputiled(float *__restrict C, float *__restrict A,
 
     __syncthreads();
 
-    // Compute dot product for the current tile
-    #pragma unroll TS
+// Compute dot product for the current tile
+#pragma unroll TS
     for (int k = 0; k < TS; ++k) {
       csum += Atile[threadIdx.y][k] * Btile[k][threadIdx.x];
     }
@@ -101,10 +101,10 @@ int main(int argc, char **argv) {
   std::default_random_engine gen(12345678);
   std::uniform_real_distribution<float> fran(0.0, 1.0);
 
-  #pragma unroll 32
+#pragma unroll 32
   for (int k = 0; k < Arow * Acol; k++)
     A[k] = fran(gen);
-  #pragma unroll 32
+#pragma unroll 32
   for (int k = 0; k < Brow * Bcol; k++)
     B[k] = fran(gen);
 

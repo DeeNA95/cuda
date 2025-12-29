@@ -7,7 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-__device__ int a[256][512][512]; // a 3d array in device memory NB declared as z,y,x order
+__device__ int a[256][512]
+                [512]; // a 3d array in device memory NB declared as z,y,x order
 __device__ float b[256][512][512]; // file scope
 
 __global__ void grid3D(int nx, int ny, int nz,
