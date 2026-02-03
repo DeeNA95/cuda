@@ -2,10 +2,13 @@
 #include "../cxtimers.h"
 #include <cooperative_groups.h>
 #include <cuda_runtime.h>
+#include <istream>
+#include "stencils.h"
 
 namespace cg = cooperative_groups;
 
-__global__ void stencil2d(cr_Ptr<float> a, r_Ptr<float> b, int nx, int ny) {
+template <typename T>
+__global__ void stencil2d(cr_Ptr<T> a, r_Ptr<T> b, int nx, int ny) {
   auto idx = [&nx](int y, int x) { return y * nx + x; };
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -186,7 +189,7 @@ __global__ void reduce_maxdiff(r_Ptr<T> smax, cr_Ptr<T> a, cr_Ptr<T> b, int n) {
     // second pass
     else // in the second pass, max btn abs difference and a current value
       s[id] = fmaxf(s[id], a[tid]);
-  }
+  } 
   // so now s[id] is the max absolute difference between a and b at that index
 
   block.sync();
@@ -224,7 +227,7 @@ T array_diff_max(cr_Ptr<T> a, cr_Ptr<T> b, int nx, int ny) {
   return d[0];
 }
 
-int main(int argc, char *argv[]) {
+int mai(int argc, char *argv[]) {
   int nx = (argc > 1) ? atoi(argv[1]) : 1024;
   int ny = (argc > 2) ? atoi(argv[2]) : 1024;
   int iter_host = (argc > 3) ? atoi(argv[3]) : 1000;
@@ -401,3 +404,8 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
+
+//definitions for import to cascade_iterations
+template __global__ void stencil2d<float>(cr_Ptr<float>, r_Ptr<float>, int, int);
+template __global__ void stencil2d<double>(cr_Ptr<double>, r_Ptr<double>, int, int);
+template double array_diff_max<double>(cr_Ptr<double> , cr_Ptr<double>, int , int );
