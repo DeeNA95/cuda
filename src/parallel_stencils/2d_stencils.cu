@@ -1,9 +1,9 @@
 #include "../cx.h"
 #include "../cxtimers.h"
+#include "stencils.h"
 #include <cooperative_groups.h>
 #include <cuda_runtime.h>
 #include <istream>
-#include "stencils.h"
 
 namespace cg = cooperative_groups;
 
@@ -189,7 +189,7 @@ __global__ void reduce_maxdiff(r_Ptr<T> smax, cr_Ptr<T> a, cr_Ptr<T> b, int n) {
     // second pass
     else // in the second pass, max btn abs difference and a current value
       s[id] = fmaxf(s[id], a[tid]);
-  } 
+  }
   // so now s[id] is the max absolute difference between a and b at that index
 
   block.sync();
@@ -356,7 +356,6 @@ int mai(int argc, char *argv[]) {
   double gflops_gpu3 = (double)(iter_gpu * 4) * (double)size / (t4 * 1e6);
   double speedup3 = gflops_gpu3 / gflops_host;
 
-
   tim.reset();
   dim3 threads_rt = {16, 4, 1};
   dim3 blocks_rt = {(nx + threads_rt.x - 1) / threads_rt.x, (ny + 16 - 1) / 16,
@@ -387,7 +386,6 @@ int mai(int argc, char *argv[]) {
   double gflops_gpu4 = (double)(iter_gpu * 4) * (double)size / (t5 * 1e6);
   double speedup4 = gflops_gpu4 / gflops_host;
 
-
   printf("host iter %8d time %9.3fms GFlops %8.3f\n", iter_host, t1,
          gflops_host);
   printf("gpu iter %8d time %9.3fms GFlops %8.3f\n", iter_gpu, t2, gflops_gpu);
@@ -405,7 +403,10 @@ int mai(int argc, char *argv[]) {
   return 0;
 }
 
-//definitions for import to cascade_iterations
-template __global__ void stencil2d<float>(cr_Ptr<float>, r_Ptr<float>, int, int);
-template __global__ void stencil2d<double>(cr_Ptr<double>, r_Ptr<double>, int, int);
-template double array_diff_max<double>(cr_Ptr<double> , cr_Ptr<double>, int , int );
+// definitions for import to cascade_iterations
+template __global__ void stencil2d<float>(cr_Ptr<float>, r_Ptr<float>, int,
+                                          int);
+template __global__ void stencil2d<double>(cr_Ptr<double>, r_Ptr<double>, int,
+                                           int);
+template double array_diff_max<double>(cr_Ptr<double>, cr_Ptr<double>, int,
+                                       int);
