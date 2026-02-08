@@ -88,7 +88,7 @@ __global__ void filter9PT_fc(cr_Ptr<uchar> a, r_Ptr<uchar> b, int nx, int ny) {
 // at 66x18 to hold 64x16 bytes with a halo 1 byte deep
 __global__ void filter9PT_3(cr_Ptr<uchar> a, r_Ptr<uchar> b, int nx, int ny) {
 
-  __shared__ uchar as[18][66];
+  __shared__ uchar as[18][66]; // 18 pixels high and 66 pixels wide
   auto idx = [&nx](int y, int x) { return y * nx + x; };
 
   // origins within shared memory will bw 1 byte from the edges ie 1,1 to 65,17
@@ -101,19 +101,27 @@ __global__ void filter9PT_3(cr_Ptr<uchar> a, r_Ptr<uchar> b, int nx, int ny) {
   int x = threadIdx.x * 4 + 1;
   int y = threadIdx.y + 1;
   const uchar4 a4 = reinterpret_cast<const uchar4 *>(a)[idx(ya, xa) / 4];
+  // uchar4 is a single container holding 4 unsigned char values which are
+  // pixels in this case makes it more efficient as the gpu puls 32bits of
+  // memory instead of 8 NB:uchar is 8bits.
+  //
+  //  since a4 pulls 4 pixels at a go we have from current pixel to current
+  //  pixel + 4, unpacked as x,y,z,w
   as[y][x] = a4.x;
   as[y][x + 1] = a4.y;
   as[y][x + 2] = a4.z;
   as[y][x + 3] = a4.w;
 
-  // warp 0 threads 0-15: copy top (y0-1) row to halo
+  // this section selects the threads which will populate the halo
+  //  warp 0 threads 0-15: copy top (y0-1) row to halo
+  //  the first row of threads populates the top halo
   if (y == 1) {
     int ytop = max(0, y0 - 1);
     as[0][x] = a[idx(ytop, xa)];
     as[0][x + 1] = a[idx(ytop, xa + 1)];
     as[0][x + 2] = a[idx(ytop, xa + 2)];
     as[0][x + 3] = a[idx(ytop, xa + 3)];
-
+    // this populates the top left and top right corners of the halo
     if (threadIdx.x == 0) {
       // top corners
       int xleft = max(0, x0 - 1);
@@ -128,6 +136,7 @@ __global__ void filter9PT_3(cr_Ptr<uchar> a, r_Ptr<uchar> b, int nx, int ny) {
   };
 
   // awrp 1 thread 0-15: copy bottom row (y0+16) to halo
+  // threads in row 3 populate the bottom of the halo
   if (y == 3) {
     int ybot = min(ny - 1, y0 + 16);
     as[17][x] = a[idx(ybot, xa)];
